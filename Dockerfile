@@ -8,14 +8,15 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libpq-dev \
     zip \
     unzip \
     nginx \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions required by Laravel
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+# Install PHP extensions required by Laravel (pgsql instead of mysql)
+RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -40,12 +41,9 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Copy Nginx config
-#COPY docker/nginx.conf /etc/nginx/sites-available/default
+# Copy Nginx and startup files from root
 COPY nginx.conf /etc/nginx/sites-available/default
 COPY start.sh /start.sh
-# Copy startup script
-#COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
 
 EXPOSE 80

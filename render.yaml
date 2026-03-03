@@ -1,5 +1,5 @@
 services:
-  # Laravel App (Web Service)
+  # Laravel App
   - type: web
     name: hackathon2026-app
     env: docker
@@ -21,17 +21,27 @@ services:
       - key: APP_KEY
         generateValue: true
       - key: DB_CONNECTION
-        value: mysql
+        value: pgsql
       - key: DB_HOST
-        value: YOUR_MYSQL_HOST   # Replace with PlanetScale or Railway host
+        fromDatabase:
+          name: hackathon2026-db
+          property: host
       - key: DB_PORT
-        value: 3306
+        fromDatabase:
+          name: hackathon2026-db
+          property: port
       - key: DB_DATABASE
-        value: hackathon2026
+        fromDatabase:
+          name: hackathon2026-db
+          property: database
       - key: DB_USERNAME
-        value: YOUR_DB_USER      # Replace with your DB username
+        fromDatabase:
+          name: hackathon2026-db
+          property: user
       - key: DB_PASSWORD
-        value: YOUR_DB_PASSWORD  # Replace with your DB password
+        fromDatabase:
+          name: hackathon2026-db
+          property: password
       - key: SESSION_DRIVER
         value: file
       - key: CACHE_DRIVER
@@ -41,17 +51,9 @@ services:
       - key: LOG_CHANNEL
         value: stderr
 
-  # phpMyAdmin (separate Web Service)
-  - type: web
-    name: hackathon2026-phpmyadmin
-    env: docker
-    dockerContext: .
-    dockerfilePath: ./docker/Dockerfile.phpmyadmin
+# Free PostgreSQL database
+databases:
+  - name: hackathon2026-db
     plan: free
-    envVars:
-      - key: PMA_HOST
-        value: YOUR_MYSQL_HOST   # Same host as above
-      - key: PMA_PORT
-        value: 3306
-      - key: MYSQL_ROOT_PASSWORD
-        value: YOUR_ROOT_PASSWORD
+    databaseName: hackathon2026
+    user: laravel
