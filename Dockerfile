@@ -1,6 +1,6 @@
 FROM php:7.4-apache
 
-# Install system dependencies + Node.js 18 (for Laravel Mix / webpack.mix.js)
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,8 +10,6 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     zip \
     unzip \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -28,25 +26,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy composer files first (layer caching)
-COPY composer.json composer.lock ./
+COPY composer.json ./
 
-# Install PHP dependencies (include dev for local)
-RUN composer install --no-interaction --no-scripts --no-autoloader
-
-# Copy package files for npm
-COPY package.json package-lock.json webpack.mix.js ./
-
-# Install Node dependencies (skip existing node_modules from host)
-RUN npm ci
+# Regenerate lock file for PHP 7.4 and install all dependencies
+RUN composer update --no-interaction --no-scripts --no-autoloader --prefer-dist
 
 # Copy the rest of the project
 COPY . .
 
 # Finish composer autoload
 RUN composer dump-autoload --optimize
-
-# Build frontend assets with Laravel Mix
-RUN npm run dev || true
 
 # Set correct permissions for Laravel storage and cache
 RUN chown -R www-data:www-data /var/www/html \

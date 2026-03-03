@@ -3,6 +3,7 @@ vendor
 .env
 .git
 .gitignore
+composer.lock
 storage/logs/*.log
 public/hot
 public/storage
