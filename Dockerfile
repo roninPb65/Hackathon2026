@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:7.4-apache
 
 # Install system dependencies + Node.js 18 (for Laravel Mix / webpack.mix.js)
 RUN apt-get update && apt-get install -y \
