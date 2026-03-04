@@ -1,6 +1,5 @@
 <?php
 // routes/web.php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
@@ -12,7 +11,10 @@ use App\Http\Controllers\ProfileController;
 
 // Public routes
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 })->name('home');
 
 // Authentication routes (if using Laravel UI)
@@ -20,7 +22,6 @@ Auth::routes();
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -50,11 +51,6 @@ Route::middleware(['auth'])->group(function () {
     })->name('resume.builder');
 
     // Profile
-    // Route::get('/profile', function () {
-    //     return view('profile.index');
-    // })->name('profile.index');
-
-    // Profile - Updated to use ProfileController
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
@@ -62,9 +58,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/roadmap', function () {
         return view('roadmap.index');
     })->name('roadmap.index');
-
-    // Profile
-    // Route::get('/profile', function () {
-    //     return view('profile.index');
-    // })->name('profile.index');
 });
