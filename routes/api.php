@@ -8,18 +8,16 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/chat', function (Request $request) {
-    $apiKey = env('GEMINI_API_KEY');
-
     $response = Http::withHeaders([
+        'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
         'Content-Type' => 'application/json',
-    ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey, [
-        'system_instruction' => [
-            'parts' => [['text' => $request->input('system')]]
-        ],
-        'contents' => collect($request->input('messages'))->map(fn($m) => [
-            'role' => $m['role'] === 'assistant' ? 'model' : 'user',
-            'parts' => [['text' => $m['content']]]
-        ])->values()->toArray(),
+    ])->post('https://api.groq.com/openai/v1/chat/completions', [
+        'model' => 'llama-3.1-8b-instant',
+        'max_tokens' => 500,
+        'messages' => array_merge(
+            [['role' => 'system', 'content' => $request->input('system')]],
+            $request->input('messages')
+        ),
     ]);
 
     return response()->json($response->json());
