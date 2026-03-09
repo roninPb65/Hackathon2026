@@ -8,9 +8,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/chat', function (Request $request) {
+    $apiKey = env('GEMINI_API_KEY');
+
     $response = Http::withHeaders([
         'Content-Type' => 'application/json',
-    ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . env('GEMINI_API_KEY'), [
+    ])->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey, [
         'system_instruction' => [
             'parts' => [['text' => $request->input('system')]]
         ],
