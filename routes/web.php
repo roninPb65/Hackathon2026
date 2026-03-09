@@ -58,4 +58,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/roadmap', function () {
         return view('roadmap.index');
     })->name('roadmap.index');
+
+    Route::post('/chat', function (Request $request) {
+        $response = Http::withHeaders([
+            'x-api-key' => env('ANTHROPIC_API_KEY'),
+            'anthropic-version' => '2023-06-01',
+            'Content-Type' => 'application/json',
+        ])->post('https://api.anthropic.com/v1/messages', [
+            'model' => 'claude-sonnet-4-20250514',
+            'max_tokens' => 1000,
+            'system' => $request->system,
+            'messages' => $request->messages,
+        ]);
+    
+        return $response->json();
+    });
 });
