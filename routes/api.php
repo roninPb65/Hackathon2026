@@ -8,6 +8,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/chat', function (Request $request) {
+    $system = $request->input('system');
     $response = Http::withHeaders([
         'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
         'Content-Type' => 'application/json',
@@ -15,10 +16,9 @@ Route::post('/chat', function (Request $request) {
         'model' => 'llama-3.1-8b-instant',
         'max_tokens' => 500,
         'messages' => array_merge(
-            [['role' => 'system', 'content' => $request->input('system')]],
+            $system ? [['role' => 'system', 'content' => $system]] : [],
             $request->input('messages')
         ),
     ]);
-
     return response()->json($response->json());
 });
